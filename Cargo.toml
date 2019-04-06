@@ -5,7 +5,7 @@ authors = ["Matias Klemola <matias.klemola@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-rusoto_core = { version="0.37.0", default_features=false, features=["rustls"] }
-rusoto_dynamodb = { version="0.37.0", default_features=false, features=["rustls"] }
+rusoto_core = "0.37.0"
+dynomite = "0.3"
 clap = "2.31.2"
 hostname = "0.1.5"

@@ -1,48 +1,37 @@
+extern crate dynomite;
 extern crate hostname;
 extern crate rusoto_core;
-extern crate rusoto_dynamodb;
 
+use dynomite::{
+    dynamodb::{DynamoDb, DynamoDbClient, PutItemInput},
+    retry::Policy,
+    Item, Retries,
+};
 use hostname::get_hostname;
 use rusoto_core::Region;
-use rusoto_dynamodb::{AttributeValue, DynamoDb, DynamoDbClient, PutItemInput};
-use std::collections::HashMap;
 
+#[derive(Item, Debug, Clone)]
 struct MachineStatus {
-    machine_id: String,
-    status_id: u8,
+    #[hash]
+    MachineID: String,
+    StatusID: u16,
+    StatusMeta: String,
 }
 
 fn main() {
-    let client = DynamoDbClient::new(Region::EuNorth1);
-
+    let client = DynamoDbClient::new(Region::EuNorth1).with_retries(Policy::default());;
     let hostname = get_hostname().unwrap_or_default();
+    let table_name = String::from("machine-status");
 
     let machine_status = MachineStatus {
-        machine_id: hostname,
-        status_id: 0,
+        MachineID: hostname.into(),
+        StatusID: 0,
+        StatusMeta: String::from("Something"),
     };
 
-    let mut item_input: HashMap<String, AttributeValue> = HashMap::new();
-
-    item_input.insert(
-        String::from("MachineID"),
-        AttributeValue {
-            s: Some(machine_status.machine_id),
-            ..Default::default()
-        },
-    );
-
-    item_input.insert(
-        String::from("StatusID"),
-        AttributeValue {
-            n: Some(machine_status.status_id.to_string()),
-            ..Default::default()
-        },
-    );
-
     let put_item_input = PutItemInput {
-        item: item_input,
-        table_name: String::from("machine-status"),
+        item: machine_status.clone().into(),
+        table_name: table_name.clone(),
         ..Default::default()
     };
 
@@ -51,7 +40,7 @@ fn main() {
             println!("Status saved {:?}", output);
         }
         Err(error) => {
-            println!("Error: {:?}", error);
+            println!("Put item error: {:?}", error);
         }
     }
 }
