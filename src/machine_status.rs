@@ -5,17 +5,36 @@ use dynomite::{
 use hostname::get_hostname;
 use itertools::Itertools;
 use rusoto_core::Region;
+use std::cmp::Ordering;
 use std::error::Error;
 use time;
 use uuid::Uuid;
 
-#[derive(Item, Debug, Clone)]
+#[derive(Item, Debug, Clone, Eq)]
 pub struct MachineStatus {
     #[hash]
     status_id: String,
     machine_id: String,
     timestamp: String,
     status_meta: String,
+}
+
+impl Ord for MachineStatus {
+    fn cmp(&self, other: &MachineStatus) -> Ordering {
+        self.timestamp.cmp(&other.timestamp)
+    }
+}
+
+impl PartialOrd for MachineStatus {
+    fn partial_cmp(&self, other: &MachineStatus) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for MachineStatus {
+    fn eq(&self, other: &MachineStatus) -> bool {
+        self.machine_id == other.machine_id
+    }
 }
 
 pub fn get_client() -> DynamoDbClient {
@@ -35,9 +54,10 @@ pub fn list_status(
     let output = client.scan(scan_input).sync()?;
     let items = output.items.unwrap_or(Vec::new());
     let status_vec = items
-        .iter()
+        .into_iter()
         .map(|result| MachineStatus::from_attrs(result.clone()))
         .filter_map(|mapped| mapped.ok())
+        .sorted_by(|s1, s2| Ord::cmp(&s2, &s1))
         .unique_by(|status| status.machine_id.clone())
         .collect::<Vec<MachineStatus>>();
 
