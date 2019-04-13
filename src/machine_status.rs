@@ -9,12 +9,14 @@ use std::cmp::Ordering;
 use std::error::Error;
 use time;
 use uuid::Uuid;
+use mac_address::get_mac_address;
 
 #[derive(Item, Debug, Clone, Eq)]
 pub struct MachineStatus {
     #[hash]
     status_id: String,
     machine_id: String,
+    mac_address: String,
     timestamp: String,
     status_meta: String,
 }
@@ -58,7 +60,7 @@ pub fn list_status(
         .map(|result| MachineStatus::from_attrs(result.clone()))
         .filter_map(std::result::Result::ok)
         .sorted_by(|s1, s2| Ord::cmp(&s2, &s1))
-        .unique_by(|status| status.machine_id.clone())
+        .unique_by(|status| status.mac_address.clone())
         .collect::<Vec<MachineStatus>>();
 
     Ok(status_vec)
@@ -69,10 +71,15 @@ pub fn save_status(
     table_name: &str,
 ) -> Result<PutItemOutput, PutItemError> {
     let hostname = get_hostname().unwrap_or_default();
+    let m_address = match get_mac_address() {
+        Ok(Some(address)) => address.to_string(),
+        _ => "".to_string()
+    };
 
     let machine_status = MachineStatus {
         status_id: Uuid::new_v4().to_string(),
         machine_id: hostname,
+        mac_address: m_address,
         timestamp: time::now_utc().rfc3339().to_string(),
         status_meta: String::from("Something"),
     };
