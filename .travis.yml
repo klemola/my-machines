@@ -1,0 +1,74 @@
+# Based on the "trust" template v0.1.2
+# https://github.com/japaric/trust/tree/v0.1.2
+
+dist: xenial
+language: rust
+services: docker
+sudo: required
+
+env:
+  global:
+    - CRATE_NAME=butsku-cli
+
+matrix:
+  fast_finish: true
+  include:
+    # Linux
+    - env: TARGET=arm-unknown-linux-gnueabi
+    - env: TARGET=armv7-unknown-linux-gnueabihf
+    - env: TARGET=i686-unknown-linux-gnu
+    - env: TARGET=i686-unknown-linux-musl
+    - env: TARGET=x86_64-unknown-linux-gnu
+    - env: TARGET=x86_64-unknown-linux-musl
+
+    # OSX
+    - env: TARGET=i686-apple-darwin
+      os: osx
+    - env: TARGET=x86_64-apple-darwin
+      os: osx
+
+    # Windows
+    - env: TARGET=x86_64-pc-windows-gnu
+    - env: TARGET=x86_64-pc-windows-msvc
+
+before_install:
+  - set -e
+  - rustup self update
+
+install:
+  - sh ci/install.sh
+  - source ~/.cargo/env || true
+
+script:
+  - bash ci/script.sh
+
+after_script: set +e
+
+before_deploy:
+  - sh ci/before_deploy.sh
+
+deploy:
+  api_key:
+    secure: VtDxdjikTahncAfeL0AjD+doZBPv3w/RBjphrE3SwmwSRV9tRWKcFRGzOKIBGRil9W87Dxn0c1TuyE0rKA5IMbsgqrigSPIqc4PisFaaIcmBiZH5v4BFT5w5PHfDZvp7KqClexfoanab1r6wMuPt+1e0Zz97zF6Ulg06kSficTkp/Q782snZSW/ixirU+FzZ2uPbg0eX4ALPpVkHxAo9Eagbnv+PJKsuHMonz+2i2vJSWp2EMdaF21DRrm4l8+PRJ+Tf5qjZ0DRMBf9yIGAuE3UnceilGJOGWz+FrbQSppmL3F1qpyy7RkzPL8eQcqTJOJ7vMDnvMAMtJuH1l7ALV5o9mdKyU/o+MdR+c776Ru4n7GDmFBR9JxgAXe/Ih+WGF/uw5M5qCYaKUbPmU/NvsNWDCEDV/GwpkJUwKTai9oL0HeUKkbBP3o8FTnfu19AEEuxR0VVSiDPUPm9jccxH8atvI58G4dmT36Pw2cELYoLjSt7asVMjAffl7KBEPwvZ3ZPrjdxm3jqNedzO6h1HjBTXjMlbljExOrtrbqTKQlqjo7svQJnLapHzyrO1Ejat5ECdaI4bikEQBuA5pXXqOwdB+/+0z/mc6g0OTxe/h5U1Gu5CAuZNL+lzYO+6o6PLxpmSCuGvxvN32NYU5zKBmVzv2GsL8dV6hnUtAHfoxhY=
+  file_glob: true
+  file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
+  on:
+    condition: $TRAVIS_RUST_VERSION = stable
+    tags: true
+  provider: releases
+  skip_cleanup: true
+
+cache: cargo
+before_cache:
+  # Travis can't cache files that are not readable by "others"
+  - chmod -R a+r $HOME/.cargo
+
+branches:
+  only:
+    - /^v\d+\.\d+\.\d+.*$/
+    - master
+    - travis
+
+notifications:
+  email:
+    on_success: never
