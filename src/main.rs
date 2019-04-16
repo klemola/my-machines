@@ -12,7 +12,7 @@ fn main() {
 
     if matches.subcommand.is_none() {
         println!("{:}", matches.usage());
-        process::exit(1);
+        process::exit(0);
     }
 
     if let Some(sub_matches) = matches.subcommand_matches("status") {
