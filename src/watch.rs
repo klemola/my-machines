@@ -1,21 +1,21 @@
-use crate::machine_status::save_status;
+use crate::machine_status::save_and_handle_result;
 use dynomite::dynamodb::DynamoDbClient;
 use job_scheduler::{Job, JobScheduler};
 use std::error::Error;
 use std::time::Duration;
 
-pub fn start(client: &DynamoDbClient, table_name: &String) -> Result<(), Box<Error>> {
+pub fn start(client: &DynamoDbClient, table_name: &str) -> Result<(), Box<Error>> {
     let mut sched = JobScheduler::new();
-    let foo = "5 * * * * *".parse()?;
+    let sched_interval = "5 * * * * *".parse()?;
 
-    sched.add(Job::new(foo, || match save_status(&client, &table_name) {
-        Ok(output) => println!("Status saved {:?}", output),
-        Err(error) => println!("Put item error: {:?}", error),
+    sched.add(Job::new(sched_interval, || {
+        save_and_handle_result(&client, &table_name)
     }));
 
     // Save status immediately (once)
-    save_status(&client, &table_name).unwrap();
+    save_and_handle_result(&client, &table_name);
 
+    // ... and then at intervals
     loop {
         sched.tick();
         std::thread::sleep(Duration::from_millis(10000));
