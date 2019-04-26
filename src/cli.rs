@@ -13,5 +13,8 @@ pub fn get_matches() -> ArgMatches<'static> {
                     SubCommand::with_name("save").about("Save status from current machine"),
                 ),
         )
+        .subcommand(
+            SubCommand::with_name("watch").about("Keep track of machine status and save updates"),
+        )
         .get_matches()
 }

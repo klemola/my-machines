@@ -4,12 +4,12 @@ use dynomite::{
 };
 use hostname::get_hostname;
 use itertools::Itertools;
+use mac_address::get_mac_address;
 use rusoto_core::Region;
 use std::cmp::Ordering;
 use std::error::Error;
 use time;
 use uuid::Uuid;
-use mac_address::get_mac_address;
 
 #[derive(Item, Debug, Clone, Eq)]
 pub struct MachineStatus {
@@ -73,14 +73,15 @@ pub fn save_status(
     let hostname = get_hostname().unwrap_or_default();
     let m_address = match get_mac_address() {
         Ok(Some(address)) => address.to_string(),
-        _ => "".to_string()
+        _ => "".to_string(),
     };
+    let now = time::now_utc();
 
     let machine_status = MachineStatus {
         status_id: Uuid::new_v4().to_string(),
         machine_id: hostname,
         mac_address: m_address,
-        timestamp: time::now_utc().rfc3339().to_string(),
+        timestamp: now.rfc3339().to_string(),
         status_meta: String::from("Something"),
     };
 
