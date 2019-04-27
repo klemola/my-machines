@@ -6,6 +6,7 @@ use dynomite::{
 use hostname::get_hostname;
 use itertools::Itertools;
 use mac_address::get_mac_address;
+use prettytable::{Cell, Row, Table};
 use rusoto_core::Region;
 use std::error::Error;
 use time;
@@ -39,7 +40,28 @@ pub fn list_and_handle_result(client: &DynamoDbClient, table_name: &str) {
     let result = list(&client, &table_name);
 
     match result {
-        Ok(status_list) => println!("Status list {:?}", status_list),
+        Ok(status_list) => {
+            let mut table = Table::new();
+            let mapped_status = status_list
+                .into_iter()
+                .map(|ms| {
+                    vec![
+                        Cell::new(&ms.machine_id),
+                        Cell::new(&ms.mac_address),
+                        Cell::new(&ms.timestamp),
+                        Cell::new(&ms.status_meta),
+                    ]
+                })
+                .collect::<Vec<Vec<Cell>>>();
+
+            table.add_row(row!["Machine ID", "Mac address", "Timestamp", "Meta",]);
+
+            for ms in mapped_status {
+                table.add_row(Row::new(ms));
+            }
+
+            table.printstd();
+        }
         Err(error) => println!("Could not list status: {:?}", error),
     }
 }
