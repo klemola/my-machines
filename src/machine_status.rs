@@ -95,7 +95,7 @@ pub fn save_and_handle_result(client: &DynamoDbClient, table_name: &str) {
     let result = save(&client, &table_name);
 
     match result {
-        Ok(output) => println!("Status saved {:?}", output),
+        Ok(_) => println!("Status saved"),
         Err(error) => println!("Put item error: {:?}", error),
     }
 }
