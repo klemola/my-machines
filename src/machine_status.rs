@@ -1,15 +1,15 @@
 use crate::models::MachineStatus;
+
+use crate::system::{hostname, mac_address, system_summary};
+use chrono::prelude::*;
 use dynomite::{
     dynamodb::{DynamoDb, DynamoDbClient, PutItemError, PutItemInput, PutItemOutput, ScanInput},
     FromAttributes,
 };
-use hostname::get_hostname;
 use itertools::Itertools;
-use mac_address::get_mac_address;
 use prettytable::{Cell, Row, Table};
 use rusoto_core::Region;
 use std::error::Error;
-use time;
 use uuid::Uuid;
 
 pub fn get_client() -> DynamoDbClient {
@@ -67,19 +67,14 @@ pub fn list_and_handle_result(client: &DynamoDbClient, table_name: &str) {
 }
 
 pub fn save(client: &DynamoDbClient, table_name: &str) -> Result<PutItemOutput, PutItemError> {
-    let hostname = get_hostname().unwrap_or_default();
-    let m_address = match get_mac_address() {
-        Ok(Some(address)) => address.to_string(),
-        _ => "".to_string(),
-    };
-    let now = time::now_utc();
+    let utc: DateTime<Utc> = Utc::now();
 
     let machine_status = MachineStatus {
         status_id: Uuid::new_v4().to_string(),
-        machine_id: hostname,
-        mac_address: m_address,
-        timestamp: now.rfc3339().to_string(),
-        status_meta: String::from("Something"),
+        machine_id: hostname(),
+        mac_address: mac_address(),
+        timestamp: utc.to_rfc3339(),
+        status_meta: system_summary(),
     };
 
     let put_item_input = PutItemInput {

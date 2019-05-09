@@ -4,6 +4,7 @@ extern crate prettytable;
 mod cli;
 mod machine_status;
 mod models;
+mod system;
 mod watch;
 
 use clap::ArgMatches;
