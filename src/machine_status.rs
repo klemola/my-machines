@@ -8,7 +8,7 @@ use dynomite::{
 };
 use itertools::Itertools;
 use prettytable::{Cell, Row, Table};
-use rusoto_core::Region;
+use rusoto_core::{Region, RusotoError};
 use std::error::Error;
 use uuid::Uuid;
 
@@ -66,7 +66,7 @@ pub fn list_and_handle_result(client: &DynamoDbClient, table_name: &str) {
     }
 }
 
-pub fn save(client: &DynamoDbClient, table_name: &str) -> Result<PutItemOutput, PutItemError> {
+pub fn save(client: &DynamoDbClient, table_name: &str) -> Result<PutItemOutput, RusotoError<PutItemError>> {
     let utc: DateTime<Utc> = Utc::now();
 
     let machine_status = MachineStatus {
