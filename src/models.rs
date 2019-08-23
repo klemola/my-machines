@@ -6,6 +6,7 @@ pub struct MachineStatus {
     #[hash]
     pub status_id: String,
     pub machine_id: String,
+    pub time_to_exist: i64,
     pub mac_address: String,
     pub timestamp: String,
     pub status_meta: String,

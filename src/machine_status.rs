@@ -1,7 +1,7 @@
 use crate::models::MachineStatus;
 
 use crate::system::{hostname, mac_address, system_summary};
-use chrono::prelude::*;
+use chrono::{DateTime, Duration, Utc};
 use dynomite::{
     dynamodb::{DynamoDb, DynamoDbClient, PutItemError, PutItemInput, PutItemOutput, ScanInput},
     FromAttributes,
@@ -21,7 +21,7 @@ pub fn list(
     table_name: &str,
 ) -> Result<Vec<MachineStatus>, Box<dyn Error>> {
     let scan_input = ScanInput {
-        table_name: table_name.to_string(),
+        table_name: String::from(table_name),
         select: Some(String::from("ALL_ATTRIBUTES")),
         ..Default::default()
     };
@@ -30,7 +30,7 @@ pub fn list(
     let items = output.items.unwrap_or_default();
     let status_vec = items
         .into_iter()
-        .map(|result| MachineStatus::from_attrs(result.clone()))
+        .map(|result| MachineStatus::from_attrs(result))
         .filter_map(std::result::Result::ok)
         .sorted_by(|s1, s2| Ord::cmp(&s2, &s1))
         .unique_by(|status| status.mac_address.clone())
@@ -74,6 +74,7 @@ pub fn save(
     table_name: &str,
 ) -> Result<PutItemOutput, RusotoError<PutItemError>> {
     let utc: DateTime<Utc> = Utc::now();
+    let two_days_from_now = utc.checked_add_signed(Duration::days(2)).unwrap_or(utc);
 
     let machine_status = MachineStatus {
         status_id: Uuid::new_v4().to_string(),
@@ -81,6 +82,7 @@ pub fn save(
         mac_address: mac_address(),
         timestamp: utc.to_rfc3339(),
         status_meta: system_summary(),
+        time_to_exist: two_days_from_now.timestamp(),
     };
 
     let put_item_input = PutItemInput {
