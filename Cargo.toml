@@ -5,8 +5,8 @@ authors = ["Matias Klemola <matias.klemola@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-rusoto_core = "0.38.0"
-dynomite = "0.4.1"
+rusoto_core = "0.40.0"
+dynomite = "0.5.1"
 clap = "2.33.0"
 hostname = "0.1.5"
 uuid = "0.7.4"
@@ -16,4 +16,4 @@ mac_address = "1.0.0"
 job_scheduler = "1.0.6"
 prettytable-rs = "0.8.0"
 systemstat = "0.1.4"
-chrono = "0.4.6"
+chrono = "0.4.7"
