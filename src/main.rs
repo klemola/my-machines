@@ -12,7 +12,7 @@ use cli::get_matches;
 use machine_status::{get_client, list_and_handle_result, save_and_handle_result};
 use std::error::Error;
 
-fn main() -> Result<(), Box<Error>> {
+fn main() -> Result<(), Box<dyn Error>> {
     let table_name = String::from("machine-status");
     let client = get_client();
     let matches = get_matches();

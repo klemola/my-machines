@@ -16,7 +16,10 @@ pub fn get_client() -> DynamoDbClient {
     DynamoDbClient::new(Region::EuNorth1)
 }
 
-pub fn list(client: &DynamoDbClient, table_name: &str) -> Result<Vec<MachineStatus>, Box<Error>> {
+pub fn list(
+    client: &DynamoDbClient,
+    table_name: &str,
+) -> Result<Vec<MachineStatus>, Box<dyn Error>> {
     let scan_input = ScanInput {
         table_name: table_name.to_string(),
         select: Some(String::from("ALL_ATTRIBUTES")),
@@ -66,7 +69,10 @@ pub fn list_and_handle_result(client: &DynamoDbClient, table_name: &str) {
     }
 }
 
-pub fn save(client: &DynamoDbClient, table_name: &str) -> Result<PutItemOutput, RusotoError<PutItemError>> {
+pub fn save(
+    client: &DynamoDbClient,
+    table_name: &str,
+) -> Result<PutItemOutput, RusotoError<PutItemError>> {
     let utc: DateTime<Utc> = Utc::now();
 
     let machine_status = MachineStatus {

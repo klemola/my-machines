@@ -4,7 +4,7 @@ use job_scheduler::{Job, JobScheduler};
 use std::error::Error;
 use std::time::Duration;
 
-pub fn start(client: &DynamoDbClient, table_name: &str) -> Result<(), Box<Error>> {
+pub fn start(client: &DynamoDbClient, table_name: &str) -> Result<(), Box<dyn Error>> {
     let mut sched = JobScheduler::new();
     let sched_interval = "5 * * * * *".parse()?;
 
