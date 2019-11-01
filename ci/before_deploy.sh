@@ -17,9 +17,9 @@ main() {
 
     test -f Cargo.lock || cargo generate-lockfile
 
-    cross rustc --bin butsku-cli --target $TARGET --release -- -C lto
+    cross rustc --bin myma --target $TARGET --release -- -C lto
 
-    cp target/$TARGET/release/butsku-cli $stage/
+    cp target/$TARGET/release/myma $stage/
 
     cd $stage
     tar czf $src/$CRATE_NAME-$TRAVIS_TAG-$TARGET.tar.gz *

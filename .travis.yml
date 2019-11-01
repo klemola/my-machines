@@ -8,7 +8,7 @@ sudo: required
 
 env:
   global:
-    - CRATE_NAME=butsku-cli
+    - CRATE_NAME=my-machines
 
 matrix:
   fast_finish: true
@@ -45,7 +45,7 @@ deploy:
   file_glob: true
   file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
   on:
-    repo: klemola/butsku-cli
+    repo: klemola/my-machines
     condition: $TRAVIS_RUST_VERSION = stable
     tags: true
   provider: releases
@@ -55,12 +55,6 @@ cache: cargo
 before_cache:
   # Travis can't cache files that are not readable by "others"
   - chmod -R a+r $HOME/.cargo
-
-branches:
-  only:
-    - /^v\d+\.\d+\.\d+.*$/
-    - master
-    - travis
 
 notifications:
   email:
