@@ -1,7 +1,7 @@
 use clap::{App, ArgMatches, SubCommand};
 
 pub fn get_matches() -> ArgMatches<'static> {
-    App::new("Butsku CLI")
+    App::new("My Machines CLI")
         .version(env!("CARGO_PKG_VERSION"))
         .author(env!("CARGO_PKG_AUTHORS"))
         .about("Setup and monitor your personal infrastructure")
