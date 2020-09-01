@@ -1,22 +1,22 @@
 [package]
-name = "my-machines"
-version = "0.1.0"
 authors = ["Matias Klemola <matias.klemola@gmail.com>"]
 edition = "2018"
+name = "my-machines"
+version = "0.3.0"
 
 [dependencies]
-rusoto_core = "0.40.0"
+chrono = "0.4.15"
+clap = "2.33.3"
 dynomite = "0.5.1"
-clap = "2.33.0"
 hostname = "0.1.5"
-uuid = "0.7.4"
-itertools = "0.8.0"
-time = "0.1.42"
-mac_address = "1.0.0"
-job_scheduler = "1.0.6"
+itertools = "0.9.0"
+job_scheduler = "1.2.1"
+mac_address = "1.0.3"
 prettytable-rs = "0.8.0"
-systemstat = "0.1.4"
-chrono = "0.4.7"
+rusoto_core = "0.40.0"
+systemstat = "0.1.5"
+time = "0.2.16"
+uuid = "0.8.1"
 
 [[bin]]
 name = "myma"

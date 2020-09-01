@@ -26,9 +26,9 @@ pub fn system_summary() -> String {
     let sys = System::new();
     let placeholder = "<unknown>".to_string();
     let uptime = match sys.uptime() {
-        Ok(dur) => time::Duration::from_std(dur)
+        Ok(dur) => chrono::Duration::from_std(dur)
             .map(pretty_duration)
-            .unwrap_or_else(|_| placeholder.clone()),
+            .unwrap_or(placeholder.clone()),
         Err(_) => placeholder.clone(),
     };
     let load_avg = sys
